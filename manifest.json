@@ -1,0 +1,27 @@
+{
+    "manifest_version": 2,
+
+    "name": "HTTP Alarm",
+    "description": "This extension acts as a reminder service, with the ability to pull data from specified URL to enrich reminder content",
+    "version": "0.1",
+    "icons": {
+        "16": "images/icon16.png",
+        "32": "images/icon32.png",
+        "64": "images/icon64.png",
+        "128": "images/icon128.png" },
+
+    "browser_action": {
+        "default_popup": "popup.html"
+    },
+    "permissions": [
+        "<all_urls>",
+        "alarms",
+        "storage",
+        "notifications"
+    ],
+
+    "background": {
+        "scripts": ["js/background.js", "js/eventPage.js"],
+        "persistent": false
+    }
+}
