@@ -41,7 +41,6 @@ function notifySchedule(response) {
 	}
 
 	new Notification(header, {
-		body: new Date(),
 		icon: 'images/icon64.png'
 	});
 }
