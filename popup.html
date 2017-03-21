@@ -10,17 +10,14 @@
 			font-size: 100%;
 		}
 		#status {
-			/* avoid an excessively wide status text */
-			white-space: pre;
-			text-overflow: ellipsis;
-			overflow: hidden;
-			max-width: 400px;
+			white-space: pre-line;
+			min-width: 200px;
+			max-width: 300px;
 		}
 		</style>
 	</head>
 	<body>
 		<div id="status"></div>
-
 
 		<script src="js/background.js"></script>
 		<script src="js/popup.js"></script>

@@ -12,11 +12,10 @@ function renderStatus(statusText) {
 	document.getElementById('status').textContent = statusText;
 }
 
-function generateText(obj){
+function generateText(obj) {
 	var text = 'Next bus in ';
 	var first = false;
 	if (obj.prd) {
-		//generate text for current notification
 		for (p of obj.prd) {
 			if (!first) {
 				text += (p.prdctdn == 'DUE') ? '0' : p.prdctdn;
@@ -26,24 +25,23 @@ function generateText(obj){
 			}
 		}
 		text += ' minutes';
-	}
-	else{
+	} else {
 		text = 'Schedule not found';
 	}
 	return text;
 }
 
-function setNextAlarm(obj){
+function setNextAlarm(obj) {
 	var interval = 0; // in minutes
 	var date = new Date();
 
-	if (obj.prd){
+	if (obj.prd) {
 		interval = parseInt(obj.prd[0].prdctdn);
 
-		if (isNaN(interval)){
+		if (isNaN(interval)) {
 			if (obj.prd[1] != undefined) {
 				interval = parseInt(obj.prd[1].prdctdn);
-			}else {
+			} else {
 				interval = 10;
 			}
 		}
@@ -55,15 +53,15 @@ function setNextAlarm(obj){
 	}
 }
 
-function notifySchedule(response) {
+function notifySchedule(response, setAlarm = true) {
 	var obj = JSON.parse(response)['bustime-response'];
-	console.log(obj);
-
 	var header = generateText(obj);
 
 	new Notification(header, {
 		icon: 'images/icon64.png'
 	});
 
-	setNextAlarm(obj)
+	if (setAlarm) {
+		setNextAlarm(obj);
+	}
 }
