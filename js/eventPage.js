@@ -6,6 +6,8 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
 var date = new Date();
 date.setHours(17,30,0,0);
 
-chrome.alarms.create("alarmTest", {
+chrome.alarms.clearAll();
+
+chrome.alarms.create("initialAlarm", {
 	when: date.getTime()
 });
