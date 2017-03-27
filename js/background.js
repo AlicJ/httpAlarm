@@ -4,7 +4,7 @@ function httpGetAsync(theUrl, successCallback, errorCallback=function(){}) {
 		if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
 			successCallback(xmlHttp.responseText);
 		}
-		else (xmlHttp.readyState == 4){
+		else if (xmlHttp.readyState == 4){
 			errorCallback(xmlHttp);
 		}
 	}
