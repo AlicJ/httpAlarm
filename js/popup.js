@@ -4,5 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		var obj = JSON.parse(response)['bustime-response'];
 		var text = generateText(obj);
 		renderStatus(text);
+	}, function(error){
+		renderStatus('Uh oh, something went wrong...');
 	});
 });
