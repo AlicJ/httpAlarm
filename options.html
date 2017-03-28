@@ -18,27 +18,45 @@
 
 		<div>
 			<table class="table table-striped">
-			  <thead>
-			  	<tr>
-			  		<td>Name</td>
-			  		<td>URL</td>
-			  	</tr>
-			  </thead>
-			  <tbody id="urlList"></tbody>
+				<thead>
+					<tr>
+						<td>Name</td>
+						<td>URL</td>
+						<td>Method</td>
+						<td>Comment</td>
+					</tr>
+				</thead>
+				<tbody id="urlList"></tbody>
 			</table>
+
+			<button type="button" id="deleteAllUrl" class="btn btn-danger">Delete all</button>
+			<p></p>
+
+			<form id="urlForm" class="form-inline">
+				<div class="form-group">
+					<input type="text" class="form-control" name="name" placeholder="Name" required>
+
+					<input type="text" class="form-control" name="url" placeholder="URL" type="url" required>
+
+					<select class="form-control" name="method">
+						<option value="GET" selected>GET</option>
+						<option value="POST">POST</option>
+						<option value="PUT">PUT</option>
+					</select>
+
+					<textarea class="form-control" name="comment" rows="1" placeholder="Comment"></textarea>
+
+					<button type="submit" class="btn btn-primary">Add</button>
+					<p class="help-block"></p>
+				</div>
+			</form>
 		</div>
 
-		<form id="urlForm" class="form-inline">
-			<div class="form-group">
-				<label class="sr-only" for="name">name</label>
-				<input type="text" class="form-control" id="name" placeholder="name">
-				<label class="sr-only" for="url">URL</label>
-				<input type="text" class="form-control" id="url" placeholder="URL">
-				<button type="submit" class="submit btn btn-primary">Add</button>
-				<span class="help-block"></span>
-			</div>
-		</form>
-		<button type="button" id="deleteAllUrl" class="btn btn-danger">Delete all</button>
+		<hr>
+		<div>
+			
+		</div>
+
 
 	</div>
 
