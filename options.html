@@ -17,6 +17,7 @@
 		<hr>
 
 		<div>
+			<h3>Saved URLs</h2>
 			<table class="table table-striped">
 				<thead>
 					<tr>
@@ -26,7 +27,7 @@
 						<td>Comment</td>
 					</tr>
 				</thead>
-				<tbody id="urlList"></tbody>
+				<tbody id="urlListing"></tbody>
 			</table>
 
 			<button type="button" id="deleteAllUrl" class="btn btn-danger">Delete all</button>
@@ -54,7 +55,17 @@
 
 		<hr>
 		<div>
-			
+			<h3>Edit message</h2>
+			<p>Select url to display: <select class="" id="urlOptions"></select></p>
+			<div class="row">
+
+				<div class="col-lg-6">
+					<pre id="urlData"></pre>
+				</div>
+				<div class="col-lg-6">
+				<textarea class="form-control" id="urlMessage" rows="3"></textarea>
+				</div>
+			</div>
 		</div>
 
 

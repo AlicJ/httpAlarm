@@ -1,6 +1,13 @@
 chrome.alarms.onAlarm.addListener(function(alarm) {
 	var url = 'http://busfinder.oakvilletransit.ca/bustimemobile/proxy?op=getpredictions&stpid=2988';
-	httpGetAsync(url, notifySchedule);
+	$.ajax({
+		url: url,
+		type: 'GET'
+	})
+	.done(notifySchedule)
+	.fail(function() {
+		console.log("error");
+	});
 });
 
 var date = new Date();

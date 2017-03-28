@@ -1,4 +1,5 @@
 const STORAGE = chrome.storage.local;
+var savedUrls = {};
 
 function isValidUrl(url) {
 	var expression = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
@@ -45,21 +46,50 @@ $(document).on('click', '#deleteAllUrl', function(event) {
 	STORAGE.remove('urls', updateUrl);
 });
 
+$(document).on('change', '#urlOptions', function(event) {
+	event.preventDefault();
+	var name = $(this).val();
+	console.log('url selected', name);
+	$.ajax({
+		url: savedUrls[name].url,
+		type: savedUrls[name].method
+		// dataType: 'default: Intelligent Guess (Other values: xml, json, script, or html)',
+		// data: {param1: 'value1'},
+	})
+	.done(function(response) {
+		var data = typeof response == 'string' ? response : JSON.stringify(response, undefined, 4);
+		$('#urlData').html(data);
+	})
+	.fail(function(response) {
+		var data = typeof response == 'string' ? response : JSON.stringify(response, undefined, 4);
+		$('#urlData').html(data);
+	})
+	.always(function(response) {
+		console.log("complete", response);
+	});
+});
+
 function updateUrl(){
 	STORAGE.get('urls', function(item){
 		console.log('update urls', item)
 		var listing = '';
+		var options = '<option selected disabled>select url</option>';
 		$.each(item.urls, function(index, val) {
+			savedUrls[val.name] = val;
 			listing += `
-			<tr>
-				<td>${val.name}</td>
-				<td>${val.url}</td>
-				<td>${val.method}</td>
-				<td>${val.comment}</td>
-			</tr>
-			`;
+				<tr>
+					<td>${val.name}</td>
+					<td>${val.url}</td>
+					<td>${val.method}</td>
+					<td>${val.comment}</td>
+				</tr>
+				`;
+			options += `
+				<option value="${val.name}">${val.name}</option>
+				`;
 		});
-		$('#urlList').html(listing);
+		$('#urlListing').html(listing);
+		$('#urlOptions').html(options);
 	});
 }
 

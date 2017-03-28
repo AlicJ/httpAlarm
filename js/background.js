@@ -1,17 +1,3 @@
-function httpGetAsync(theUrl, successCallback, errorCallback=function(){}) {
-	var xmlHttp = new XMLHttpRequest();
-	xmlHttp.onreadystatechange = function() {
-		if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-			successCallback(xmlHttp.responseText);
-		}
-		else if (xmlHttp.readyState == 4){
-			errorCallback(xmlHttp);
-		}
-	}
-	xmlHttp.open("GET", theUrl, true); // true for asynchronous
-	xmlHttp.send(null);
-}
-
 function renderStatus(statusText) {
 	document.getElementById('status').textContent = statusText;
 }
