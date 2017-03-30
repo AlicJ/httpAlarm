@@ -61,11 +61,7 @@ $(document).on('change', '#urlOptions', function(event) {
 		$('#urlData').html(data);
 	})
 	.fail(function(response) {
-		var data = typeof response == 'string' ? response : JSON.stringify(response, undefined, 4);
-		$('#urlData').html(data);
-	})
-	.always(function(response) {
-		console.log("complete", response);
+		$('#urlData').html('Error loading data.');
 	});
 });
 
