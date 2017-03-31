@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title></title>
+	<link rel="stylesheet" href="/css/sandbox.css">
+	<script src="/lib/jquery-1.12.4.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/lib/bootstrap/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/lib/handlebars.min.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<body>
+	<div id="entry"></div>
+	<script id="entry-template" type="text/x-handlebars-template">
+		<div class="entry">
+			<h1>{{title}}</h1>
+			<div class="body">
+				{{body}}
+			</div>
+		</div>
+	</script>
+	<script>
+		var templates = {};
+		var source   = $("#entry-template").html();
+		templates['hello'] = Handlebars.compile(source);
+
+		window.addEventListener('message', function(event) {
+			var command = event.data.command;
+			var name = event.data.name || 'hello';
+			switch(command) {
+				case 'render':
+					event.source.postMessage({
+						name: name,
+						html: templates[name](event.data.context)
+					}, event.origin);
+					break;
+
+				// You could imagine additional functionality. For instance:
+				//
+				case 'new':
+					console.log('sandbox event', event)
+					templates[event.data.name] = Handlebars.compile(event.data.source);
+					event.source.postMessage({
+						name: name,
+						html: templates[event.data.name](event.data.context)
+					}, event.origin);
+					break;
+			}
+		});
+
+		// var context = {title: "My New Post", body: "This is my first post!"};
+		// var html    = template(context);
+		// $('#entry').html(html)
+
+
+	</script>
+</body>
+</html>

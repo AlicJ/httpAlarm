@@ -1,5 +1,9 @@
 const STORAGE = chrome.storage.local;
 var savedUrls = {};
+var previewData = {
+	context: {},
+	source: ''
+}
 
 function isValidUrl(url) {
 	var expression = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
@@ -58,11 +62,35 @@ $(document).on('change', '#urlOptions', function(event) {
 	})
 	.done(function(response) {
 		var data = typeof response == 'string' ? response : JSON.stringify(response, undefined, 4);
+		previewData.context = JSON.parse(data);
 		$('#urlData').html(data);
 	})
 	.fail(function(response) {
 		$('#urlData').html('Error loading data.');
 	});
+});
+
+$(document).on('click', '#previewBtn', function(event) {
+	event.preventDefault();
+	previewData.source = $('#urlMessage').val();
+	if (previewData.source.length > 0 && Object.getOwnPropertyNames(previewData.context).length > 0) {
+		var iframe = document.getElementById('sandboxFrame');
+		console.log(previewData);
+		var message = {
+			name: $('#urlOptions').val(),
+			command: 'new',
+			context: previewData.context,
+			source: previewData.source
+		};
+		iframe.contentWindow.postMessage(message, '*');
+	}
+});
+
+window.addEventListener('message', function(event) {
+  	console.log('main event from sandbox', event)
+	if (event.data.html) {
+		$('#preview').html(event.data.html);
+	}
 });
 
 function updateUrl(){
