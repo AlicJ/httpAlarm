@@ -17,7 +17,7 @@
 		<hr>
 
 		<div>
-			<h3>Saved URLs</h2>
+			<h3>Edit URLs</h3>
 			<table class="table table-striped">
 				<thead>
 					<tr>
@@ -31,7 +31,6 @@
 			</table>
 
 			<button type="button" id="deleteAllUrl" class="btn btn-danger">Delete all</button>
-			<p></p>
 
 			<form id="urlForm" class="form-inline">
 				<div class="form-group">
@@ -55,27 +54,38 @@
 
 		<hr>
 		<div>
-			<h3>Edit message</h2>
+			<h3>Edit Message</h3>
 			<p>Select url to display: <select class="" id="urlOptions"></select></p>
 			<div class="row">
 
 				<div class="col-sm-6">
 					<pre id="urlData"></pre>
 				</div>
-				<div class="col-sm-6">
-					<textarea class="form-control" id="urlMessage" rows="3"></textarea>
-					<div class="btn btn-primary pull-right" id="previewBtn">preview</div>
+				<div class="col-sm-6" id="msgForm">
+					<textarea class="form-control" id="urlMsg" rows="6"></textarea>
+					<div class="help-block pull-left"></div>
+					<div class="btn btn-success pull-right" id="saveMsgBtn">save</div>
+					<div class="btn btn-primary pull-right" id="previewMsgBtn">preview</div>
 				</div>
-			</div>
-			<div>
-				<div class="alert alert-info" id="preview"></div>
+				<div class="col-sm-6 pull-right">
+					<div class="alert alert-info" id="preview"></div>
+				</div>
 			</div>
 		</div>
 
+		<hr>
+		<div>
+			<h3>Edit Alarms</h3>
+		</div>
+
+		<hr>
+		<div>
+			<h3>Edit Popup</h3>
+		</div>
 
 	</div>
 
-    <iframe class="hide" id="sandboxFrame" src="sandbox.html"></iframe>
+	<iframe class="hide" id="sandboxFrame" src="sandbox.html"></iframe>
 
 	<script src="/js/options.js" type="text/javascript" charset="utf-8"></script>
 	<script src="/js/background.js" type="text/javascript" charset="utf-8"></script>

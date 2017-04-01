@@ -1,4 +1,26 @@
-const STORAGE = chrome.storage.local;
+var STORAGE = {};
+STORAGE.local = {};
+STORAGE.set = function(item, location = 'local', successCallback, errorCallback) {
+	chrome.storage[location].set(item, function(){
+		storageHelper(null, successCallback, errorCallback);
+	});
+};
+STORAGE.get = function(item, location = 'local', successCallback, errorCallback) {
+	console.log(location)
+	chrome.storage[location].get(item, function(item){
+		storageHelper(item, successCallback, errorCallback);
+	});
+}
+
+function storageHelper(item, successCallback, errorCallback) {
+	if (chrome.runtime.lastError) {
+		console.log(chrome.runtime.lastError);
+		errorCallback(chrome.runtime.lastError);
+		return;
+	}
+	successCallback(item);
+}
+
 var savedUrls = {};
 var previewData = {
 	context: {},
@@ -22,7 +44,7 @@ $(document).on('submit', '#urlForm', function(event) {
 		return;
 	}
 
-	STORAGE.get('urls', function(item){
+	STORAGE.get('urls', 'local', function(item){
 		if (item.urls === undefined) {
 			item.urls = [data];
 		} else {
@@ -37,7 +59,7 @@ $(document).on('submit', '#urlForm', function(event) {
 				item.urls.push(data);
 			}
 		}
-		STORAGE.set(item, function(){
+		STORAGE.set(item, 'local', function(){
 			updateUrl();
 			$('#urlForm')[0].reset();
 		});
@@ -53,7 +75,6 @@ $(document).on('click', '#deleteAllUrl', function(event) {
 $(document).on('change', '#urlOptions', function(event) {
 	event.preventDefault();
 	var name = $(this).val();
-	console.log('url selected', name);
 	$.ajax({
 		url: savedUrls[name].url,
 		type: savedUrls[name].method
@@ -61,21 +82,31 @@ $(document).on('change', '#urlOptions', function(event) {
 		// data: {param1: 'value1'},
 	})
 	.done(function(response) {
-		var data = typeof response == 'string' ? response : JSON.stringify(response, undefined, 4);
-		previewData.context = JSON.parse(data);
+		try{
+			var data = typeof response == 'string' ? response : JSON.stringify(response, undefined, 4);
+			previewData.context = JSON.parse(data);
+		}catch(exception){
+			$('#urlData').text('Error parsing data');
+			return;
+		}
+
 		$('#urlData').html(data);
+		STORAGE.get('messages', 'local', function(item){
+			console.log(item)
+			console.log(name)
+			$('#urlMsg').val(item.messages[name]);
+		});
 	})
 	.fail(function(response) {
 		$('#urlData').html('Error loading data.');
 	});
 });
 
-$(document).on('click', '#previewBtn', function(event) {
+$(document).on('click', '#previewMsgBtn', function(event) {
 	event.preventDefault();
-	previewData.source = $('#urlMessage').val();
+	previewData.source = $('#urlMsg').val();
 	if (previewData.source.length > 0 && Object.getOwnPropertyNames(previewData.context).length > 0) {
 		var iframe = document.getElementById('sandboxFrame');
-		console.log(previewData);
 		var message = {
 			name: $('#urlOptions').val(),
 			command: 'new',
@@ -93,8 +124,44 @@ window.addEventListener('message', function(event) {
 	}
 });
 
+$(document).on('click', '#saveMsgBtn', function(event) {
+	event.preventDefault();
+	var urlName = $('#urlOptions').val();
+	var item = {
+		messages: {}
+	};
+	item['messages'][urlName] = $('#urlMsg').val();
+
+	STORAGE.set(item, 'local', function(){
+		console.log('message saved');
+		$('#msgForm').addClass('has-success');
+		$('#msgForm .help-block').text('Message saved');
+	});
+
+	// STORAGE.get('messages', function(item){
+	// 	if (item['messages'] === undefined) {
+	// 		item['messages'] = [data];
+	// 	} else {
+	// 		var duplicate = false;
+	// 		$.each(item['messages'], function(index, val) {
+	// 			if (val.name == data.name) {
+	// 				duplicate = true;
+	// 				item['messages'][index] = data;
+	// 			}
+	// 		});
+	// 		if (!duplicate) {
+	// 			item['messages'].push(data);
+	// 		}
+	// 	}
+	// 	STORAGE.set(item, function(){
+	// 		updateUrl();
+	// 		$('#urlForm')[0].reset();
+	// 	});
+	// });
+});
+
 function updateUrl(){
-	STORAGE.get('urls', function(item){
+	STORAGE.get('urls', 'local', function(item){
 		console.log('update urls', item)
 		var listing = '';
 		var options = '<option selected disabled>select url</option>';
@@ -115,24 +182,6 @@ function updateUrl(){
 		$('#urlListing').html(listing);
 		$('#urlOptions').html(options);
 	});
-}
-
-function appendToStorage(key, item, callback) {
-	STORAGE.get(key, function(item){
-		if (item.key === undefined) {
-			item.key = item;
-		}
-		console.log('get callback')
-		console.log(item)
-	});
-}
-
-function addUrl(url) {
-	if (isValidUrl) {
-
-	}else {
-
-	}
 }
 
 $(document).ready(function() {
