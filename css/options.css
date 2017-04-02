@@ -13,3 +13,7 @@ td {
 	table-layout: fixed;
 	}
 }
+
+.pointer {
+	cursor: pointer;
+}

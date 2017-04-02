@@ -5,16 +5,24 @@ STORAGE.set = function(item, location = 'local', successCallback, errorCallback)
 		storageHelper(null, successCallback, errorCallback);
 	});
 };
-STORAGE.get = function(item, location = 'local', successCallback, errorCallback) {
-	console.log(location)
-	chrome.storage[location].get(item, function(item){
+STORAGE.get = function(key, location = 'local', successCallback, errorCallback) {
+	chrome.storage[location].get(key, function(item){
 		storageHelper(item, successCallback, errorCallback);
 	});
-}
+};
+STORAGE.remove = function(key, location = 'local', successCallback, errorCallback) {
+	chrome.storage[location].remove(key, function(){
+		storageHelper(null, successCallback, errorCallback);
+	});
+};
+STORAGE.clear = function(location = 'local', successCallback, errorCallback) {
+	chrome.storage[location].clear(function(){
+		storageHelper(null, successCallback, errorCallback);
+	});
+};
 
 function storageHelper(item, successCallback, errorCallback) {
 	if (chrome.runtime.lastError) {
-		console.log(chrome.runtime.lastError);
 		errorCallback(chrome.runtime.lastError);
 		return;
 	}
@@ -35,45 +43,43 @@ function isValidUrl(url) {
 
 $(document).on('submit', '#urlForm', function(event) {
 	event.preventDefault();
+	$('#urlForm .form-group').removeClass('has-error');
+	$('#urlForm .help-block').html('');
+
 	var data = {};
-	$(this).serializeArray().map(function(x){data[x.name] = x.value;}); 
+	$(this).serializeArray().map(function(x){data[x.name] = x.value;});
+	var newItem = {};
+	newItem[data.name] = data
+	var toSave = {messages: {}};
 
 	if (!isValidUrl(data.url)){
 		$('#urlForm .form-group').addClass('has-error');
-		$('#urlForm .help-block').text('Invalid URL');
+		$('#urlForm .help-block').html('Invalid URL');
 		return;
 	}
 
 	STORAGE.get('urls', 'local', function(item){
-		if (item.urls === undefined) {
-			item.urls = [data];
-		} else {
-			var duplicate = false;
-			$.each(item.urls, function(index, val) {
-				if (val.name == data.name) {
-					duplicate = true;
-					item.urls[index] = data;
-				}
-			});
-			if (!duplicate) {
-				item.urls.push(data);
-			}
-		}
-		STORAGE.set(item, 'local', function(){
+		toSave.urls = Object.assign({}, item.urls, newItem);
+		STORAGE.set(toSave, 'local', function(){
 			updateUrl();
 			$('#urlForm')[0].reset();
 		});
+	}, function(error){
+		$('#urlForm .form-group').addClass('has-error');
+		$('#urlForm .help-block').html('Error saving url: ' + error);
 	});
 
 });
 
 $(document).on('click', '#deleteAllUrl', function(event) {
 	event.preventDefault();
-	STORAGE.remove('urls', updateUrl);
+	cleanUpMsg();
+	STORAGE.clear('local', updateUrl);
 });
 
 $(document).on('change', '#urlOptions', function(event) {
 	event.preventDefault();
+	cleanUpMsg();
 	var name = $(this).val();
 	$.ajax({
 		url: savedUrls[name].url,
@@ -92,9 +98,9 @@ $(document).on('change', '#urlOptions', function(event) {
 
 		$('#urlData').html(data);
 		STORAGE.get('messages', 'local', function(item){
-			console.log(item)
-			console.log(name)
-			$('#urlMsg').val(item.messages[name]);
+			if (item.messages !== undefined) {
+				$('#urlMsg').val(item.messages[name]);
+			}
 		});
 	})
 	.fail(function(response) {
@@ -120,44 +126,31 @@ $(document).on('click', '#previewMsgBtn', function(event) {
 window.addEventListener('message', function(event) {
   	console.log('main event from sandbox', event)
 	if (event.data.html) {
-		$('#preview').html(event.data.html);
+		$('#urlMsgPreview').html(event.data.html);
 	}
 });
 
 $(document).on('click', '#saveMsgBtn', function(event) {
 	event.preventDefault();
-	var urlName = $('#urlOptions').val();
-	var item = {
-		messages: {}
-	};
-	item['messages'][urlName] = $('#urlMsg').val();
+	var newItem = {};
+	newItem[$('#urlOptions').val()] = $('#urlMsg').val();
+	var toSave = {messages: {}};
 
-	STORAGE.set(item, 'local', function(){
-		console.log('message saved');
-		$('#msgForm').addClass('has-success');
-		$('#msgForm .help-block').text('Message saved');
+	STORAGE.get('messages', 'local', function(item){
+		toSave.messages = Object.assign({}, item.messages, newItem);
+		STORAGE.set(toSave, 'local', function(){
+			$('#urlMsgForm').addClass('has-success');
+			$('#urlMsgForm .help-block').html('Message saved');
+		});
+	}, function(error){
+		$('#urlMsgForm').addClass('has-error');
+		$('#urlMsgForm .help-block').html('Error saving message: ' + error);
 	});
+});
 
-	// STORAGE.get('messages', function(item){
-	// 	if (item['messages'] === undefined) {
-	// 		item['messages'] = [data];
-	// 	} else {
-	// 		var duplicate = false;
-	// 		$.each(item['messages'], function(index, val) {
-	// 			if (val.name == data.name) {
-	// 				duplicate = true;
-	// 				item['messages'][index] = data;
-	// 			}
-	// 		});
-	// 		if (!duplicate) {
-	// 			item['messages'].push(data);
-	// 		}
-	// 	}
-	// 	STORAGE.set(item, function(){
-	// 		updateUrl();
-	// 		$('#urlForm')[0].reset();
-	// 	});
-	// });
+$(document).on('click', '.deleteUrl', function(event) {
+	event.preventDefault();
+	deleteUrl($(this).attr('name'));
 });
 
 function updateUrl(){
@@ -173,6 +166,8 @@ function updateUrl(){
 					<td>${val.url}</td>
 					<td>${val.method}</td>
 					<td>${val.comment}</td>
+					<td class="text-primary"><span class="pointer editUrl" name=${val.name}>Edit</span></td>
+					<td class="text-danger"><span class="pointer deleteUrl" name=${val.name}>Delete</span></td>
 				</tr>
 				`;
 			options += `
@@ -183,6 +178,34 @@ function updateUrl(){
 		$('#urlOptions').html(options);
 	});
 }
+
+function deleteUrl(name) {
+	STORAGE.get('urls', 'local', function(item){
+		if(delete item.urls[name]) {
+			STORAGE.set(item, 'local', function(){
+				updateUrl();
+			});
+		}
+	});
+	STORAGE.get('messages', 'local', function(item){
+		if(delete item.messages[name]) {
+			STORAGE.set(item, 'local', function(){
+				cleanUpMsg();
+			});
+		}
+	});
+}
+
+function cleanUpMsg(){
+	$('#urlMsg').html('');
+	$('#urlData').html('');
+	$('#urlMsgPreview').html('');
+	$('#urlMsgForm .help-block').html('');
+	$('#urlMsgForm').removeClass('has-success');
+	$('#urlMsgForm').removeClass('has-error');
+	$('#urlMsgForm .help-block').html('');
+}
+
 
 $(document).ready(function() {
 	updateUrl();

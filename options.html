@@ -21,10 +21,11 @@
 			<table class="table table-striped">
 				<thead>
 					<tr>
-						<td>Name</td>
-						<td>URL</td>
-						<td>Method</td>
-						<td>Comment</td>
+						<th>Name</th>
+						<th>URL</th>
+						<th>Method</th>
+						<th>Comment</th>
+						<th colspan="2" class="text-center"></th>
 					</tr>
 				</thead>
 				<tbody id="urlListing"></tbody>
@@ -61,14 +62,14 @@
 				<div class="col-sm-6">
 					<pre id="urlData"></pre>
 				</div>
-				<div class="col-sm-6" id="msgForm">
+				<div class="col-sm-6" id="urlMsgForm">
 					<textarea class="form-control" id="urlMsg" rows="6"></textarea>
 					<div class="help-block pull-left"></div>
 					<div class="btn btn-success pull-right" id="saveMsgBtn">save</div>
 					<div class="btn btn-primary pull-right" id="previewMsgBtn">preview</div>
 				</div>
 				<div class="col-sm-6 pull-right">
-					<div class="alert alert-info" id="preview"></div>
+					<div class="alert alert-info" id="urlMsgPreview"></div>
 				</div>
 			</div>
 		</div>
