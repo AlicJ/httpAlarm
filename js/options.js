@@ -42,7 +42,7 @@ $(document).on('submit', '#urlForm', function(event) {
 $(document).on('click', '#deleteAllUrl', function(event) {
 	event.preventDefault();
 	cleanUpMsg();
-	STORAGE.clear('local', updateUrl);
+	STORAGE.clear('local', updateUrlListing);
 });
 
 $(document).on('change', '#urlOptions', function(event) {
