@@ -96,9 +96,9 @@ $(document).on('change', '#urlOptions', function(event) {
 		}
 
 		$('#urlData').html(data);
-		STORAGE.get('messages', 'local', function(item){
-			if (item.messages !== undefined) {
-				$('#urlMsg').val(item.messages[urlName]);
+		STORAGE.get('urls', 'local', function(item){
+			if (item.urls[urlName].message !== undefined) {
+				$('#urlMsg').val(item.urls[urlName].message);
 			}
 		});
 	})
