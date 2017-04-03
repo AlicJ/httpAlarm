@@ -1,3 +1,34 @@
+var STORAGE = {};
+STORAGE.local = {};
+STORAGE.set = function(item, location = 'local', successCallback, errorCallback) {
+	chrome.storage[location].set(item, function(){
+		storageHelper(null, successCallback, errorCallback);
+	});
+};
+STORAGE.get = function(key, location = 'local', successCallback, errorCallback) {
+	chrome.storage[location].get(key, function(item){
+		storageHelper(item, successCallback, errorCallback);
+	});
+};
+STORAGE.remove = function(key, location = 'local', successCallback, errorCallback) {
+	chrome.storage[location].remove(key, function(){
+		storageHelper(null, successCallback, errorCallback);
+	});
+};
+STORAGE.clear = function(location = 'local', successCallback, errorCallback) {
+	chrome.storage[location].clear(function(){
+		storageHelper(null, successCallback, errorCallback);
+	});
+};
+
+function storageHelper(item, successCallback, errorCallback) {
+	if (chrome.runtime.lastError) {
+		errorCallback(chrome.runtime.lastError);
+		return;
+	}
+	successCallback(item);
+}
+
 function renderStatus(statusText) {
 	document.getElementById('status').textContent = statusText;
 }

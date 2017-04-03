@@ -3,6 +3,9 @@ body {
 }
 #status {
 	white-space: pre-line;
-	min-width: 200px;
-	max-width: 300px;
+	min-width: 270px;
+	max-width: 400px;
+}
+hr {
+	margin: 7px 0;
 }

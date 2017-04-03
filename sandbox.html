@@ -35,8 +35,6 @@
 					}, event.origin);
 					break;
 
-				// You could imagine additional functionality. For instance:
-				//
 				case 'new':
 					console.log('sandbox event', event)
 					templates[event.data.name] = Handlebars.compile(event.data.source);
@@ -47,11 +45,6 @@
 					break;
 			}
 		});
-
-		// var context = {title: "My New Post", body: "This is my first post!"};
-		// var html    = template(context);
-		// $('#entry').html(html)
-
 
 	</script>
 </body>
