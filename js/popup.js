@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', function() {
 	var iframe = document.getElementById('sandboxFrame');
 	STORAGE.get('urls', 'local', function(items){
 		$.each(items.urls, function(key, item) {
+			if (!item.popup) {
+				return;
+			}
 			$.ajax({
 				url: item.url,
 				type: item.method
@@ -11,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			.done(function(response){
 				var obj = {}
 				try{
-					obj = typeof response == 'string' ? JSON.parse(response) : response;
+					obj.data = typeof response == 'string' ? JSON.parse(response) : response;
 				}
 				catch(exception) {
 					console.log(exception)

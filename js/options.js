@@ -58,7 +58,7 @@ $(document).on('change', '#urlOptions', function(event) {
 	.done(function(response) {
 		try{
 			var data = typeof response == 'string' ? response : JSON.stringify(response, undefined, 4);
-			previewData.context = JSON.parse(data);
+			previewData.context.data = JSON.parse(data);
 		}catch(exception){
 			$('#urlData').text('Error parsing data');
 			return;
@@ -79,7 +79,7 @@ $(document).on('change', '#urlOptions', function(event) {
 $(document).on('click', '#previewMsgBtn', function(event) {
 	event.preventDefault();
 	previewData.source = $('#urlMsg').val();
-	if (previewData.source.length > 0 && Object.getOwnPropertyNames(previewData.context).length > 0) {
+	if (previewData.source.length > 0 && Object.getOwnPropertyNames(previewData.context.data).length > 0) {
 		var iframe = document.getElementById('sandboxFrame');
 		var message = {
 			name: $('#urlOptions').val(),
@@ -95,6 +95,8 @@ window.addEventListener('message', function(event) {
   	console.log('main event from sandbox', event)
 	if (event.data.html) {
 		$('#urlMsgPreview').html(event.data.html);
+	}else{
+		$('#urlMsgPreview').html('');
 	}
 });
 
@@ -200,6 +202,7 @@ function deleteUrl(name) {
 function cleanUpMsg(){
 	$('#urlMsg').html('');
 	$('#urlData').html('');
+	$('#urlMsg').val('');
 	$('#urlMsgPreview').html('');
 	$('#urlMsgForm .help-block').html('');
 	resetForm('#urlMsgForm');
