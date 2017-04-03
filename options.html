@@ -30,8 +30,9 @@
 				</thead>
 				<tbody id="urlListing"></tbody>
 			</table>
-
-			<button type="button" id="deleteAllUrl" class="btn btn-danger">Delete all</button>
+			<div class="form-group">
+				<button type="button" id="deleteAllUrl" class="btn btn-danger">Delete all</button>
+			</div>
 
 			<form id="urlForm" class="form-inline">
 				<div class="form-group">
@@ -58,17 +59,25 @@
 			<h3>Edit Message</h3>
 			<p>Select url to display: <select class="" id="urlOptions"></select></p>
 			<div class="row">
-
 				<div class="col-sm-6">
 					<pre id="urlData"></pre>
 				</div>
-				<div class="col-sm-6" id="urlMsgForm">
-					<textarea class="form-control" id="urlMsg" rows="6"></textarea>
-					<div class="help-block pull-left"></div>
-					<div class="btn btn-success pull-right" id="saveMsgBtn">save</div>
-					<div class="btn btn-primary pull-right" id="previewMsgBtn">preview</div>
-				</div>
-				<div class="col-sm-6 pull-right">
+				<form>
+					<div class="col-sm-6 form-group" id="urlMsgForm">
+						<div class="form-group">
+							<textarea class="form-control" id="urlMsg" rows="6"></textarea>
+						</div>
+						<div class="form-group">
+							<div class="help-block pull-left"></div>
+							<div type="submit" class="btn btn-primary pull-right" id="saveMsgBtn">save</div>
+							<div type="submit" class="btn btn-info pull-right" id="previewMsgBtn">preview</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="row">
+				<div class="col-sm-6"></div>
+				<div class="col-sm-6">
 					<div class="alert alert-info" id="urlMsgPreview"></div>
 				</div>
 			</div>
@@ -77,11 +86,18 @@
 		<hr>
 		<div>
 			<h3>Edit Alarms</h3>
+
 		</div>
 
 		<hr>
 		<div>
 			<h3>Edit Popup</h3>
+			<form id="popupForm">
+				<p>Select messages to include in popup:</p>
+				<div class="form-group" id="msgListing"></div>
+				<button type="submit" class="btn btn-primary pull">save</button>
+				<span class="help-block"></span>
+			</form>
 		</div>
 
 	</div>

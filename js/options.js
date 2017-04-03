@@ -43,8 +43,7 @@ function isValidUrl(url) {
 
 $(document).on('submit', '#urlForm', function(event) {
 	event.preventDefault();
-	$('#urlForm .form-group').removeClass('has-error');
-	$('#urlForm .help-block').html('');
+	resetForm('#urlForm');
 
 	var data = {};
 	$(this).serializeArray().map(function(x){data[x.name] = x.value;});
@@ -53,7 +52,7 @@ $(document).on('submit', '#urlForm', function(event) {
 	var toSave = {messages: {}};
 
 	if (!isValidUrl(data.url)){
-		$('#urlForm .form-group').addClass('has-error');
+		$('#urlForm').addClass('has-error');
 		$('#urlForm .help-block').html('Invalid URL');
 		return;
 	}
@@ -61,7 +60,7 @@ $(document).on('submit', '#urlForm', function(event) {
 	STORAGE.get('urls', 'local', function(item){
 		toSave.urls = Object.assign({}, item.urls, newItem);
 		STORAGE.set(toSave, 'local', function(){
-			updateUrl();
+			updateUrlListing();
 			$('#urlForm')[0].reset();
 		});
 	}, function(error){
@@ -80,10 +79,10 @@ $(document).on('click', '#deleteAllUrl', function(event) {
 $(document).on('change', '#urlOptions', function(event) {
 	event.preventDefault();
 	cleanUpMsg();
-	var name = $(this).val();
+	var urlName = $(this).val();
 	$.ajax({
-		url: savedUrls[name].url,
-		type: savedUrls[name].method
+		url: savedUrls[urlName].url,
+		type: savedUrls[urlName].method
 		// dataType: 'default: Intelligent Guess (Other values: xml, json, script, or html)',
 		// data: {param1: 'value1'},
 	})
@@ -99,7 +98,7 @@ $(document).on('change', '#urlOptions', function(event) {
 		$('#urlData').html(data);
 		STORAGE.get('messages', 'local', function(item){
 			if (item.messages !== undefined) {
-				$('#urlMsg').val(item.messages[name]);
+				$('#urlMsg').val(item.messages[urlName]);
 			}
 		});
 	})
@@ -132,15 +131,27 @@ window.addEventListener('message', function(event) {
 
 $(document).on('click', '#saveMsgBtn', function(event) {
 	event.preventDefault();
-	var newItem = {};
-	newItem[$('#urlOptions').val()] = $('#urlMsg').val();
-	var toSave = {messages: {}};
+	resetForm('#urlMsgForm');
 
-	STORAGE.get('messages', 'local', function(item){
-		toSave.messages = Object.assign({}, item.messages, newItem);
-		STORAGE.set(toSave, 'local', function(){
+	var urlName = $('#urlOptions').val();
+	var urlMessage = $('#urlMsg').val();
+
+	if (urlMessage.length < 1){
+		$('#urlMsgForm').addClass('has-error');
+		$('#urlMsgForm .help-block').html('Message cannot be empty');
+		return;
+	}else if (urlName == null) {
+		$('#urlMsgForm').addClass('has-error');
+		$('#urlMsgForm .help-block').html('Please select a URL');
+		return;
+	}
+
+	STORAGE.get('urls', 'local', function(item){
+		item.urls[urlName].message = urlMessage;
+		STORAGE.set(item, 'local', function(){
 			$('#urlMsgForm').addClass('has-success');
 			$('#urlMsgForm .help-block').html('Message saved');
+			updateUrlListing();
 		});
 	}, function(error){
 		$('#urlMsgForm').addClass('has-error');
@@ -153,12 +164,32 @@ $(document).on('click', '.deleteUrl', function(event) {
 	deleteUrl($(this).attr('name'));
 });
 
-function updateUrl(){
+$(document).on('submit', '#popupForm', function(event) {
+	event.preventDefault();
+	resetForm('#popupForm');
+
+	var data = [];
+	$(this).serializeArray().map(function(x){data.push(x.value);});
+
 	STORAGE.get('urls', 'local', function(item){
-		console.log('update urls', item)
+		$.each(item.urls, function(key, val) {
+			console.log(key, item.urls)
+			item.urls[key].popup = data.includes(key);
+		});
+		STORAGE.set(item, 'local', function(){
+			$('#popupForm').addClass('has-success');
+			$('#popupForm').find('.help-block').html('saved');
+			updateUrlListing();
+		});
+	});
+});
+
+function updateUrlListing(){
+	STORAGE.get('urls', 'local', function(item){
 		var listing = '';
 		var options = '<option selected disabled>select url</option>';
-		$.each(item.urls, function(index, val) {
+		var msgListing = '';
+		$.each(item.urls, function(key, val) {
 			savedUrls[val.name] = val;
 			listing += `
 				<tr>
@@ -173,9 +204,17 @@ function updateUrl(){
 			options += `
 				<option value="${val.name}">${val.name}</option>
 				`;
+			msgListing += '<div class="checkbox"><label>';
+			if (val.popup) {
+				msgListing += `<input type="checkbox" name=${key} value=${key} checked>${key}`;
+			}else {
+				msgListing += `<input type="checkbox" name=${key} value=${key}>${key}`;
+			}
+			msgListing += '</label></div>';
 		});
 		$('#urlListing').html(listing);
 		$('#urlOptions').html(options);
+		$('#msgListing').html(msgListing);
 	});
 }
 
@@ -183,14 +222,7 @@ function deleteUrl(name) {
 	STORAGE.get('urls', 'local', function(item){
 		if(delete item.urls[name]) {
 			STORAGE.set(item, 'local', function(){
-				updateUrl();
-			});
-		}
-	});
-	STORAGE.get('messages', 'local', function(item){
-		if(delete item.messages[name]) {
-			STORAGE.set(item, 'local', function(){
-				cleanUpMsg();
+				updateUrlListing();
 			});
 		}
 	});
@@ -201,12 +233,15 @@ function cleanUpMsg(){
 	$('#urlData').html('');
 	$('#urlMsgPreview').html('');
 	$('#urlMsgForm .help-block').html('');
-	$('#urlMsgForm').removeClass('has-success');
-	$('#urlMsgForm').removeClass('has-error');
-	$('#urlMsgForm .help-block').html('');
+	resetForm('#urlMsgForm');
 }
 
+function resetForm(formId) {
+	$(formId).removeClass('has-error');
+	$(formId).removeClass('has-success');
+	$(formId).find('.help-block').html('');
+}
 
 $(document).ready(function() {
-	updateUrl();
+	updateUrlListing();
 });
