@@ -1,10 +1,22 @@
 var counter = 0;
+var totalSize = 0;
+var noShow = 0;
 
 document.addEventListener('DOMContentLoaded', function() {
+	$('#noData').hide();
+	$('#status').hide();
+
+
 	var iframe = document.getElementById('sandboxFrame');
 	STORAGE.get('urls', 'local', function(items){
 		$.each(items.urls, function(key, item) {
+			totalSize++;
 			if (!item.popup) {
+				noShow++;
+				if (noShow == totalSize) {
+					$('#loading').hide();
+					$('#noData').show();
+				}
 				return;
 			}
 			$.ajax({
@@ -33,15 +45,16 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 window.addEventListener('message', function(event) {
-	console.log('main event from sandbox', event)
+	console.log('main event from sandbox', event);
 	if (event.data.html) {
 		$('#loading').hide();
+		$('#status').show();
 		$('#dataTable tbody').append(`
 			<tr>
-				<td>${event.data.name}</td>
-				<td>${event.data.html}</td>
+			<td>${event.data.name}</td>
+			<td>${event.data.html}</td>
 			</tr>
-		`);
+			`);
 	}
 });
 /*
