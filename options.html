@@ -62,22 +62,23 @@
 				<div class="col-sm-6">
 					<pre id="urlData"></pre>
 				</div>
-				<form>
-					<div class="col-sm-6 form-group" id="urlMsgForm">
+				
+				<div class="col-sm-6">
+					<form id="urlMsgForm">
 						<div class="form-group">
 							<textarea class="form-control" id="urlMsg" rows="6"></textarea>
 						</div>
 						<div class="form-group">
 							<div class="help-block pull-left"></div>
-							<div type="submit" class="btn btn-primary pull-right" id="saveMsgBtn">save</div>
+							<div class="btn btn-primary invisible">button</div>
+
+							<div class="btn btn-primary pull-right" id="saveMsgBtn">save</div>
 							<div type="submit" class="btn btn-info pull-right" id="previewMsgBtn">preview</div>
 						</div>
-					</div>
-				</form>
-			</div>
-			<div class="row">
-				<div class="col-sm-6"></div>
-				<div class="col-sm-6">
+					</form>
+				</div>
+				
+				<div class="col-xs-12 col-sm-6 pull-right">
 					<div class="alert alert-info" id="urlMsgPreview"></div>
 				</div>
 			</div>
