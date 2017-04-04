@@ -166,7 +166,6 @@ function updateUrlListing(){
 					<td>${val.url}</td>
 					<td>${val.method}</td>
 					<td>${val.comment}</td>
-					<td class="text-primary"><span class="pointer editUrl" name=${val.name}>Edit</span></td>
 					<td class="text-danger"><span class="pointer deleteUrl" name=${val.name}>Delete</span></td>
 				</tr>
 				`;
