@@ -10,15 +10,16 @@ function isValidUrl(url) {
 	return url.match(regex);
 }
 
-$(document).on('submit', '#urlForm', function(event) {
+function addUrl(event) {
 	event.preventDefault();
 	resetForm('#urlForm');
 
 	var data = {};
+	console.log(this);
 	$(this).serializeArray().map(function(x){data[x.name] = x.value;});
 	var newItem = {};
 	newItem[data.name] = data
-	var toSave = {messages: {}};
+	var toSave = {};
 
 	if (!isValidUrl(data.url)){
 		$('#urlForm').addClass('has-error');
@@ -36,16 +37,15 @@ $(document).on('submit', '#urlForm', function(event) {
 		$('#urlForm .form-group').addClass('has-error');
 		$('#urlForm .help-block').html('Error saving url: ' + error);
 	});
+}
 
-});
-
-$(document).on('click', '#deleteAllUrl', function(event) {
+function deleteAll(event){
 	event.preventDefault();
 	cleanUpMsg();
 	STORAGE.clear('local', updateUrlListing);
-});
+}
 
-$(document).on('change', '#urlOptions', function(event) {
+function loadUrlData(event) {
 	event.preventDefault();
 	cleanUpMsg();
 	var urlName = $(this).val();
@@ -74,9 +74,9 @@ $(document).on('change', '#urlOptions', function(event) {
 	.fail(function(response) {
 		$('#urlData').html('Error loading data.');
 	});
-});
+}
 
-$(document).on('click', '#previewMsgBtn', function(event) {
+function previewMsg(event) {
 	event.preventDefault();
 	previewData.source = $('#urlMsg').val();
 	if (previewData.source.length > 0 && Object.getOwnPropertyNames(previewData.context.data).length > 0) {
@@ -89,18 +89,9 @@ $(document).on('click', '#previewMsgBtn', function(event) {
 		};
 		iframe.contentWindow.postMessage(message, '*');
 	}
-});
+}
 
-window.addEventListener('message', function(event) {
-  	console.log('main event from sandbox', event)
-	if (event.data.html) {
-		$('#urlMsgPreview').html(event.data.html);
-	}else{
-		$('#urlMsgPreview').html('');
-	}
-});
-
-$(document).on('click', '#saveMsgBtn', function(event) {
+function saveMsg(event) {
 	event.preventDefault();
 	resetForm('#urlMsgForm');
 
@@ -122,20 +113,15 @@ $(document).on('click', '#saveMsgBtn', function(event) {
 		STORAGE.set(item, 'local', function(){
 			$('#urlMsgForm').addClass('has-success');
 			$('#urlMsgForm .help-block').html('Message saved');
-			updateUrlListing();
+			updatePopupListing();
 		});
 	}, function(error){
 		$('#urlMsgForm').addClass('has-error');
 		$('#urlMsgForm .help-block').html('Error saving message: ' + error);
 	});
-});
+}
 
-$(document).on('click', '.deleteUrl', function(event) {
-	event.preventDefault();
-	deleteUrl($(this).attr('name'));
-});
-
-$(document).on('submit', '#popupForm', function(event) {
+function savePopupConfig(event) {
 	event.preventDefault();
 	resetForm('#popupForm');
 
@@ -153,27 +139,31 @@ $(document).on('submit', '#popupForm', function(event) {
 			updateUrlListing();
 		});
 	});
-});
+}
 
 function updateUrlListing(){
 	STORAGE.get('urls', 'local', function(item){
+		if ($.isEmptyObject(item.urls)) {
+			$('#urlListing').html('<tr><td colspan="5" class="text-center">Use the form below to add Urls</td></tr>');
+			return;
+		}
+		savedUrls = item.urls;
 		var listing = '';
 		var options = '<option selected disabled>select url</option>';
 		var msgListing = '';
 		$.each(item.urls, function(key, val) {
-			savedUrls[val.name] = val;
 			listing += `
-				<tr>
-					<td>${val.name}</td>
-					<td>${val.url}</td>
-					<td>${val.method}</td>
-					<td>${val.comment}</td>
-					<td class="text-danger"><span class="pointer deleteUrl" name=${val.name}>Delete</span></td>
-				</tr>
-				`;
+			<tr>
+			<td>${val.name}</td>
+			<td>${val.url}</td>
+			<td>${val.method}</td>
+			<td>${val.comment}</td>
+			<td class="text-danger"><span class="pointer deleteUrl" name=${val.name}>Delete</span></td>
+			</tr>
+			`;
 			options += `
-				<option value="${val.name}">${val.name}</option>
-				`;
+			<option value="${val.name}">${val.name}</option>
+			`;
 			msgListing += '<div class="checkbox"><label>';
 			if (val.popup) {
 				msgListing += `<input type="checkbox" name=${key} value=${key} checked>${key}`;
@@ -188,7 +178,25 @@ function updateUrlListing(){
 	});
 }
 
-function deleteUrl(name) {
+function updatePopupListing(){
+	STORAGE.get('urls', 'local', function(item){
+		savedUrls = item.urls;
+		var msgListing = '';
+		$.each(item.urls, function(key, val) {
+			msgListing += '<div class="checkbox"><label>';
+			if (val.popup) {
+				msgListing += `<input type="checkbox" name=${key} value=${key} checked>${key}`;
+			}else {
+				msgListing += `<input type="checkbox" name=${key} value=${key}>${key}`;
+			}
+			msgListing += '</label></div>';
+		});
+		$('#msgListing').html(msgListing);
+	});
+}
+
+function deleteUrl(event) {
+	var name = $(this).attr('name');
 	STORAGE.get('urls', 'local', function(item){
 		if(delete item.urls[name]) {
 			STORAGE.set(item, 'local', function(){
@@ -213,6 +221,31 @@ function resetForm(formId) {
 	$(formId).find('.help-block').html('');
 }
 
+window.addEventListener('message', function(event) {
+	console.log('main event from sandbox', event)
+	if (event.data.html) {
+		$('#urlMsgPreview').html(event.data.html);
+	}else{
+		$('#urlMsgPreview').html('');
+	}
+});
+
+$(document).on('submit', '#urlForm', addUrl);
+
+$(document).on('click', '#deleteAllUrl', deleteAll);
+
+$(document).on('change', '#urlOptions', loadUrlData);
+
+$(document).on('click', '#previewMsgBtn', previewMsg);
+
+$(document).on('click', '#saveMsgBtn', saveMsg);
+
+$(document).on('click', '.deleteUrl', deleteUrl);
+
+$(document).on('submit', '#popupForm', savePopupConfig);
+
 $(document).ready(function() {
 	updateUrlListing();
+	updatePopupListing();
 });
+
